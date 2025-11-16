@@ -1,0 +1,20 @@
+name: Build Docker Images
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build backend
+        run: docker build -t backend ./plax-backend
+
+      - name: Build frontend
+        run: docker build -t frontend ./plax-frontend
