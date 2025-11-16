@@ -55,4 +55,4 @@ jobs:
 
       # 7️⃣ (Opcional) Build con docker-compose
       - name: Docker Compose Build
-        run: docker-compose -f docker-compose.yml build
+        run: docker compose -f docker-compose.yml build
