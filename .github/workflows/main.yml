@@ -1,4 +1,4 @@
-name: Build Docker Images
+name: CI/CD Pipeline
 
 on:
   push:
@@ -6,15 +6,53 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      # 1️⃣ Clonar el repositorio
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build backend
-        run: docker build -t backend ./plax-backend
+      # 2️⃣ Login to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build frontend
-        run: docker build -t frontend ./plax-frontend
+      # 3️⃣ Construir imagen backend
+      - name: Build backend Docker image
+        run: |
+          IMAGE_NAME=sofiayanez98/plax-backend
+          COMMIT_TAG=${{ github.sha }}
+          docker build -t $IMAGE_NAME:$COMMIT_TAG ./plax-backend
+          docker tag $IMAGE_NAME:$COMMIT_TAG $IMAGE_NAME:latest
+
+      # 4️⃣ Construir imagen frontend
+      - name: Build frontend Docker image
+        run: |
+          IMAGE_NAME=sofiayanez98/plax-frontend
+          COMMIT_TAG=${{ github.sha }}
+          docker build -t $IMAGE_NAME:$COMMIT_TAG ./plax-frontend
+          docker tag $IMAGE_NAME:$COMMIT_TAG $IMAGE_NAME:latest
+
+      # 5️⃣ Push backend a Docker Hub
+      - name: Push backend Docker image
+        run: |
+          IMAGE_NAME=sofiayanez98/plax-backend
+          COMMIT_TAG=${{ github.sha }}
+          docker push $IMAGE_NAME:$COMMIT_TAG
+          docker push $IMAGE_NAME:latest
+
+      # 6️⃣ Push frontend a Docker Hub
+      - name: Push frontend Docker image
+        run: |
+          IMAGE_NAME=sofiayanez98/plax-frontend
+          COMMIT_TAG=${{ github.sha }}
+          docker push $IMAGE_NAME:$COMMIT_TAG
+          docker push $IMAGE_NAME:latest
+
+      # 7️⃣ (Opcional) Build con docker-compose
+      - name: Docker Compose Build
+        run: docker-compose -f docker-compose.yml build
