@@ -142,7 +142,6 @@ services:
   backend:
     image: plax-backend:latest
     container_name: plax_backend
-    build: ./plax-backend/
     restart: always
     env_file:
       - ./plax-backend/.env
@@ -161,11 +160,12 @@ services:
       timeout: 3s
       retries: 5
       start_period: 10s
+    labels:
+      - "com.containrrr.watchtower.enable=true"
 
   frontend:
     image: plax-frontend:latest
     container_name: plax_frontend
-    build: ./plax-frontend/
     restart: always
     environment:
       VITE_API_URL: http://localhost:8080
@@ -174,9 +174,11 @@ services:
     networks:
       - plax-net
     volumes:
-     - ./plax-frontend/default.conf:/etc/nginx/conf.d/default.conf
+      - ./plax-frontend/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - backend
+    labels:
+      - "com.containrrr.watchtower.enable=true"
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -203,7 +205,18 @@ services:
       - mysql-server-1
       - mysql-server-2
       - mysql-server-3
-
+      
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: >
+      --interval 30
+      --cleanup
+      --label-enable
+      
 networks:
   plax-net:
 
