@@ -140,7 +140,7 @@ services:
       retries: 10
 
   backend:
-    image: plax-backend:latest
+    image: sofiayanez98/plax-backend:latest
     container_name: plax_backend
     restart: always
     env_file:
@@ -164,7 +164,7 @@ services:
       - "com.containrrr.watchtower.enable=true"
 
   frontend:
-    image: plax-frontend:latest
+    image: sofiayanez98/plax-frontend:latest
     container_name: plax_frontend
     restart: always
     environment:
